@@ -18,7 +18,7 @@ public partial class AmniscientApiClient
                 { "X-Fern-Language", "C#" },
                 { "X-Fern-SDK-Name", "AmniscientApi" },
                 { "X-Fern-SDK-Version", Version.Current },
-                { "User-Agent", "Imdb.Net/0.0.1" },
+                { "User-Agent", "Amniscient.Net/0.0.1" },
             }
         );
         clientOptions ??= new ClientOptions();
