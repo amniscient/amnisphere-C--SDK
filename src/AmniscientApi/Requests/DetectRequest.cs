@@ -2,7 +2,7 @@ using AmniscientApi.Core;
 
 namespace AmniscientApi;
 
-public record DetectionDetectRequest
+public record DetectRequest
 {
     public override string ToString()
     {

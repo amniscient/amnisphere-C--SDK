@@ -3,7 +3,7 @@ using AmniscientApi.Core;
 
 namespace AmniscientApi;
 
-public record ModelLoadModelResponse
+public record LoadModelResponse
 {
     /// <summary>
     /// A status code denoting success or failure.

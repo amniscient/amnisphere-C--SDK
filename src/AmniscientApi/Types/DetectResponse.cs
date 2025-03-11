@@ -3,7 +3,7 @@ using AmniscientApi.Core;
 
 namespace AmniscientApi;
 
-public record DetectionDetectResponse
+public record DetectResponse
 {
     /// <summary>
     /// A status code denoting success or failure.

@@ -3,7 +3,7 @@ using AmniscientApi.Core;
 
 namespace AmniscientApi;
 
-public record ModelLoadModelRequest
+public record LoadModelRequest
 {
     /// <summary>
     /// Your organization identifier

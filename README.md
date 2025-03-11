@@ -19,9 +19,9 @@ Instantiate and use the client with the following:
 using AmniscientApi;
 
 var client = new AmniscientApiClient("API_KEY");
-await client.Model.LoadModelAsync(
+await client.LoadModelAsync(
     "model_id",
-    new ModelLoadModelRequest { OrganizationId = "organization_id" }
+    new LoadModelRequest { OrganizationId = "organization_id" }
 );
 ```
 
@@ -34,7 +34,7 @@ will be thrown.
 using AmniscientApi;
 
 try {
-    var response = await client.Model.LoadModelAsync(...);
+    var response = await client.LoadModelAsync(...);
 } catch (AmniscientApiApiException e) {
     System.Console.WriteLine(e.Body);
     System.Console.WriteLine(e.StatusCode);
@@ -58,7 +58,7 @@ A request is deemed retryable when any of the following HTTP status codes is ret
 Use the `MaxRetries` request option to configure this behavior.
 
 ```csharp
-var response = await client.Model.LoadModelAsync(
+var response = await client.LoadModelAsync(
     ...,
     new RequestOptions {
         MaxRetries: 0 // Override MaxRetries at the request level
@@ -71,7 +71,7 @@ var response = await client.Model.LoadModelAsync(
 The SDK defaults to a 30 second timeout. Use the `Timeout` option to configure this behavior.
 
 ```csharp
-var response = await client.Model.LoadModelAsync(
+var response = await client.LoadModelAsync(
     ...,
     new RequestOptions {
         Timeout: TimeSpan.FromSeconds(3) // Override timeout to 3s
