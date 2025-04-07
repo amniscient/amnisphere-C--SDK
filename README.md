@@ -8,7 +8,7 @@ The Amniscient C# library provides convenient access to the Amniscient API from 
 ## Installation
 
 ```sh
-nuget install AmniscientApi
+dotnet add package AmniscientApi
 ```
 
 ## Usage

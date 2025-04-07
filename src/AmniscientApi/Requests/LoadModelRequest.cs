@@ -11,6 +11,7 @@ public record LoadModelRequest
     [JsonPropertyName("organization_id")]
     public required string OrganizationId { get; set; }
 
+    /// <inheritdoc />
     public override string ToString()
     {
         return JsonUtils.Serialize(this);

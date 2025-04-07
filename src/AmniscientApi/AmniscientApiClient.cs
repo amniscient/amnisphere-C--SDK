@@ -18,7 +18,7 @@ public partial class AmniscientApiClient
                 { "X-Fern-Language", "C#" },
                 { "X-Fern-SDK-Name", "AmniscientApi" },
                 { "X-Fern-SDK-Version", Version.Current },
-                { "User-Agent", "Amniscient.Net/0.0.1" },
+                { "User-Agent", "Amniscient.Net/0.0.2" },
             }
         );
         clientOptions ??= new ClientOptions();
@@ -35,14 +35,12 @@ public partial class AmniscientApiClient
     /// <summary>
     /// Initializes a model for inference. This endpoint must be called before running any detections.
     /// </summary>
-    /// <example>
-    /// <code>
+    /// <example><code>
     /// await client.LoadModelAsync(
     ///     "model_id",
     ///     new LoadModelRequest { OrganizationId = "organization_id" }
     /// );
-    /// </code>
-    /// </example>
+    /// </code></example>
     public async Task<LoadModelResponse> LoadModelAsync(
         string modelId,
         LoadModelRequest request,
@@ -51,12 +49,15 @@ public partial class AmniscientApiClient
     )
     {
         var response = await _client
-            .MakeRequestAsync(
-                new RawClient.JsonApiRequest
+            .SendRequestAsync(
+                new JsonRequest
                 {
                     BaseUrl = _client.Options.BaseUrl,
                     Method = HttpMethod.Post,
-                    Path = $"loadModel/{JsonUtils.SerializeAsString(modelId)}",
+                    Path = string.Format(
+                        "loadModel/{0}",
+                        ValueConvert.ToPathParameterString(modelId)
+                    ),
                     Body = request,
                     ContentType = "application/json",
                     Options = options,
@@ -64,9 +65,9 @@ public partial class AmniscientApiClient
                 cancellationToken
             )
             .ConfigureAwait(false);
-        var responseBody = await response.Raw.Content.ReadAsStringAsync();
         if (response.StatusCode is >= 200 and < 400)
         {
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
             {
                 return JsonUtils.Deserialize<LoadModelResponse>(responseBody)!;
@@ -77,27 +78,30 @@ public partial class AmniscientApiClient
             }
         }
 
-        try
         {
-            switch (response.StatusCode)
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
+            try
             {
-                case 400:
-                    throw new BadRequestError(JsonUtils.Deserialize<object>(responseBody));
-                case 401:
-                    throw new UnauthorizedError(
-                        JsonUtils.Deserialize<UnauthorizedErrorBody>(responseBody)
-                    );
+                switch (response.StatusCode)
+                {
+                    case 400:
+                        throw new BadRequestError(JsonUtils.Deserialize<object>(responseBody));
+                    case 401:
+                        throw new UnauthorizedError(
+                            JsonUtils.Deserialize<UnauthorizedErrorBody>(responseBody)
+                        );
+                }
             }
+            catch (JsonException)
+            {
+                // unable to map error response, throwing generic error
+            }
+            throw new AmniscientApiApiException(
+                $"Error with status code {response.StatusCode}",
+                response.StatusCode,
+                responseBody
+            );
         }
-        catch (JsonException)
-        {
-            // unable to map error response, throwing generic error
-        }
-        throw new AmniscientApiApiException(
-            $"Error with status code {response.StatusCode}",
-            response.StatusCode,
-            responseBody
-        );
     }
 
     /// <summary>
@@ -109,21 +113,21 @@ public partial class AmniscientApiClient
         CancellationToken cancellationToken = default
     )
     {
+        var multipartFormRequest_ = new MultipartFormRequest
+        {
+            BaseUrl = _client.Options.BaseUrl,
+            Method = HttpMethod.Post,
+            Path = "detect",
+            Options = options,
+        };
+        multipartFormRequest_.AddStringPart("organization_id", request.OrganizationId);
+        multipartFormRequest_.AddJsonPart("file", request.File);
         var response = await _client
-            .MakeRequestAsync(
-                new RawClient.JsonApiRequest
-                {
-                    BaseUrl = _client.Options.BaseUrl,
-                    Method = HttpMethod.Post,
-                    Path = "detect",
-                    Options = options,
-                },
-                cancellationToken
-            )
+            .SendRequestAsync(multipartFormRequest_, cancellationToken)
             .ConfigureAwait(false);
-        var responseBody = await response.Raw.Content.ReadAsStringAsync();
         if (response.StatusCode is >= 200 and < 400)
         {
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
             try
             {
                 return JsonUtils.Deserialize<DetectResponse>(responseBody)!;
@@ -134,22 +138,25 @@ public partial class AmniscientApiClient
             }
         }
 
-        try
         {
-            switch (response.StatusCode)
+            var responseBody = await response.Raw.Content.ReadAsStringAsync();
+            try
             {
-                case 400:
-                    throw new BadRequestError(JsonUtils.Deserialize<object>(responseBody));
+                switch (response.StatusCode)
+                {
+                    case 400:
+                        throw new BadRequestError(JsonUtils.Deserialize<object>(responseBody));
+                }
             }
+            catch (JsonException)
+            {
+                // unable to map error response, throwing generic error
+            }
+            throw new AmniscientApiApiException(
+                $"Error with status code {response.StatusCode}",
+                response.StatusCode,
+                responseBody
+            );
         }
-        catch (JsonException)
-        {
-            // unable to map error response, throwing generic error
-        }
-        throw new AmniscientApiApiException(
-            $"Error with status code {response.StatusCode}",
-            response.StatusCode,
-            responseBody
-        );
     }
 }
